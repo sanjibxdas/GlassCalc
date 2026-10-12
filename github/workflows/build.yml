@@ -1,0 +1,79 @@
+name: Build GlassCalc APK
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: glasscalc-apk-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build debug APK
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Gradle 9.3.1
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '9.3.1'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android SDK 36.1
+        run: |
+          sdkmanager "platforms;android-36.1" "build-tools;36.1.0" "platform-tools"
+
+      - name: Restore the debug keystore for consistent APK signatures
+        uses: actions/cache@v4
+        with:
+          path: debug.keystore
+          key: glasscalc-debug-keystore-v1
+
+      - name: Create the debug keystore required by this project
+        run: |
+          if [ ! -f debug.keystore ]; then
+            keytool -genkeypair -v \
+              -storetype JKS \
+              -keystore debug.keystore \
+              -storepass android \
+              -alias androiddebugkey \
+              -keypass android \
+              -keyalg RSA \
+              -keysize 2048 \
+              -validity 10000 \
+              -dname "CN=Android Debug,O=Android,C=US"
+          fi
+
+      - name: Build debug APK
+        run: gradle --no-daemon :app:assembleDebug
+
+      - name: Rename APK for easy identification
+        run: cp app/build/outputs/apk/debug/app-debug.apk GlassCalc-debug.apk
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: GlassCalc-debug-apk
+          path: GlassCalc-debug.apk
+          if-no-files-found: error
+          retention-days: 14
