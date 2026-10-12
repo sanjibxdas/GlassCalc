@@ -1,0 +1,6 @@
+{
+  "name": "Calculator",
+  "description": "Liquid glass iOS-style calculator with fluid spring animations and paywall prank.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

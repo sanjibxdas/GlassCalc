@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="calc_black">#FF000000</color>
+    <color name="calc_orange">#FFFF9F0A</color>
+    <color name="calc_white">#FFFFFFFF</color>
+</resources>
