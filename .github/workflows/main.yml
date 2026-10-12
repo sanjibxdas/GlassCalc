@@ -29,19 +29,25 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: '17'
+          java-version: "17"
 
       - name: Set up Gradle 9.3.1
         uses: gradle/actions/setup-gradle@v4
         with:
-          gradle-version: '9.3.1'
+          gradle-version: "9.3.1"
 
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
+        with:
+          packages: |
+            cmdline-tools;latest
+            platform-tools
+            platforms;android-36
+            build-tools;36.1.0
 
-      - name: Install Android SDK 36
+      - name: Accept Android SDK licenses
         run: |
-          sdkmanager "platforms;android-36" "build-tools;36.1.0" "platform-tools"
+          yes | "$ANDROID_HOME"/cmdline-tools/latest/bin/sdkmanager --licenses || true
 
       - name: Restore the debug keystore for consistent APK signatures
         uses: actions/cache@v4
@@ -65,7 +71,7 @@ jobs:
           fi
 
       - name: Build debug APK
-        run: gradle --no-daemon :app:assembleDebug
+        run: ./gradlew --no-daemon :app:assembleDebug
 
       - name: Rename APK for easy identification
         run: cp app/build/outputs/apk/debug/app-debug.apk GlassCalc-debug.apk
