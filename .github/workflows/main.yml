@@ -40,7 +40,6 @@ jobs:
         uses: android-actions/setup-android@v3
         with:
           packages: |
-            cmdline-tools;latest
             platform-tools
             platforms;android-36
             build-tools;36.1.0
